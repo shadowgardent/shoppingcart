@@ -1,103 +1,63 @@
-import Image from "next/image";
+"use client";
+import { useState } from "react";
+import CartItem from "./cartitem";
 
-export default function Home() {
+type Product = {
+  id: number;
+  name: string;
+  price: number;
+};
+
+const products: Product[] = [
+  { id: 1, name: "iPhone 16 pro", price: 39900 },
+  { id: 2, name: "iPhone 16", price: 29900 },
+  { id: 3, name: "iPhone 16e", price: 26900 },
+  { id: 4, name: "iPad", price: 12900 },
+  { id: 5, name: "iPad Air", price: 21900 },
+  { id: 6, name: "iPad Pro", price: 37900 },
+];
+
+export default function Page() {
+  const [cart, setCart] = useState<{ [key: number]: number }>({});
+
+  const handleChange = (id: number, value: number) => {
+    setCart((prev) => {
+      const newQty = Math.max((prev[id] || 0) + value, 0);
+      return { ...prev, [id]: newQty };
+    });
+  };
+
+  const handleReset = () => {
+    setCart({});
+  };
+
+  const totalItems = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+  const totalPrice = Object.entries(cart).reduce((sum, [id, qty]) => {
+    const product = products.find((p) => p.id === Number(id));
+    return sum + (product ? product.price * qty : 0);
+  }, 0);
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <main className="p-4 max-w-xl mx-auto">
+      <h1>🛒 ตะกร้าสินค้า</h1>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+      <div className="space-y-4">
+        {products.map((p) => (
+          <CartItem
+            key={p.id}
+            product={p}
+            quantity={cart[p.id] || 0}
+            onAdd={() => handleChange(p.id, 1)}
+            onRemove={() => handleChange(p.id, -1)}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        ))}
+      </div>
+
+      <div className="summary-box">
+        <p>จำนวนสินค้ารวมทั้งหมด: <b>{totalItems}</b></p>
+        <p>ราคารวมทั้งหมด: <b>{totalPrice.toLocaleString()} บาท</b></p>
+        <button className="reset-button" onClick={handleReset}>ล้างตะกร้า</button>
+      </div>
+    </main>
   );
 }
