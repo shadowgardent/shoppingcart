@@ -56,6 +56,7 @@ export default function Page() {
       <div className="summary-box">
         <p>จำนวนสินค้ารวมทั้งหมด: <b>{totalItems}</b></p>
         <p>ราคารวมทั้งหมด: <b>{totalPrice.toLocaleString()} บาท</b></p>
+        <p>Create by nawaprom phuphaphiw 663450040-2</p>
         <button className="reset-button" onClick={handleReset}>ล้างตะกร้า</button>
       </div>
     </main>
